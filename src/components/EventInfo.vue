@@ -16,40 +16,13 @@ export default {
         }
     },
      created: function () {
-    console.log('event list at created ' + this.events)
+        this.getBaseInfo()
     },
     methods: {
-    getBaseInfo () {
-        axios('https://barrelhorseworld.com/events.asp')
-      .then(response => {
-        const html = response.data;
-        const $ = cheerio.load(html)
-        const eventsTable = $('tbody > tr');
-        
-        eventsTable.each(function () {
-        
-          const rowData = $(this).find('td');
-          const eventTitle = $(rowData).find('a').text()
-          const detailLink = $(rowData).find('a').attr('href')
-          const eventDate = $(rowData).first().text()
-          const eventLocation = $(rowData).last().text()
-
-          const detailUrl = `https://barrelhorseworld.com/${detailLink}`
-
-          const event = {
-            title: eventTitle,
-            date: eventDate,
-            location: eventLocation,
-            link: detailUrl
-          }
-          this.getDetails(event);
-        });
-      })
-      .catch();
-    },
-
-    getDetails(event) {
-        axios(event.link)
+        getDetails: function(event) {
+        // console.log('hit get event details', event)
+        const detailLink = event.link
+        axios(detailLink)
         .then(response => {
             const html = response.data;
             const $ = cheerio.load(html)
@@ -79,6 +52,40 @@ export default {
         .catch();
 
     },
+    getBaseInfo: function () {
+        const ref = this
+        axios('https://barrelhorseworld.com/events.asp')
+      .then(response => {
+        const html = response.data;
+        const $ = cheerio.load(html)
+        const eventsTable = $('tbody > tr');
+        // const trimmedTable = eventsTable.shift()
+        console.log('events table', typeof eventsTable, eventsTable[0])
+        const parentTable = eventsTable.parent()
+        this.parentTable.removeChild(eventsTable.firstChild)
+        console.log('events??', eventsTable)
+        
+        eventsTable.each(function () {
+        
+          const rowData = $(this).find('td');
+          const eventTitle = $(rowData).find('a').text()
+          const detailLink = $(rowData).find('a').attr('href')
+          const eventDate = $(rowData).first().text()
+          const eventLocation = $(rowData).last().text()
+
+          const detailUrl = `https://barrelhorseworld.com/${detailLink}`
+
+          const event = {
+            title: eventTitle,
+            date: eventDate,
+            location: eventLocation,
+            link: detailUrl
+          }
+          ref.getDetails(event);
+        });
+      })
+      .catch();
+    }
   },
   props: {
   }
