@@ -59,13 +59,14 @@ export default {
         const html = response.data;
         const $ = cheerio.load(html)
         const eventsTable = $('tbody > tr');
-        // const trimmedTable = eventsTable.shift()
-        console.log('events table', typeof eventsTable, eventsTable[0])
-        const parentTable = eventsTable.parent()
-        this.parentTable.removeChild(eventsTable.firstChild)
-        console.log('events??', eventsTable)
+        const parentTable = $('tbody')
+        const trimmedTable = eventsTable.slice(1);
+        console.log('events table length before', parentTable.children())   
+        // parentTable.removeChild(parentTable.firstChild)
+        // delete eventsTable[0]
+        // console.log('parent table length after ', eventsTable.length()) 
         
-        eventsTable.each(function () {
+        trimmedTable.each(function () {
         
           const rowData = $(this).find('td');
           const eventTitle = $(rowData).find('a').text()
